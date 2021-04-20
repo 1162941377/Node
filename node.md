@@ -4,40 +4,50 @@
 
 2）它提供了比浏览器更多的操作权限
 
-## 全局对象
+## 模块化
 
-1）setTimeout：延迟输出
+> node 使用的是 CommonJs 模块化，也支持 es6 模块化，不过略显麻烦
 
-2）setInterval：定时器
+### 模块的查找
 
-3）setImmediate：延迟输出，暂时可以理解为延迟 0 秒输出结果
+1）绝对路径：根据绝对路径直接加载模块
 
-4）console：控制台输出结果
+2）相对路径：相对于当前模块，转换为绝对路径，加载模块
 
-5）\_\_dirname：文件所在目录，并非 global 属性
+##### 相对路径
 
-6）\_\_filename：文件所在路径，并非 global 属性
+1）检查是否是内置模块，如：fs、path 等
 
-7）Buffer：获取类型化数组，继承自 UInt8Array
+2）检查当前目录中的 node_modules
 
-> 计算机中存储的基本单位是：字节（byte）
+3）检查上级目录中的 node_modules
 
-> 在计算机中，使用和输出时，可能会用 十六 进制表示
+4）转换为绝对路径
 
-[详情请见] http://blog.yuanjin.tech/article/94
+5）加载模块
 
-8）process：进程
+#### 后缀名
 
-> cwd：返回的是当前命令行的目录
+> 如果不写后缀名，node 会自动补全
 
-> exit：退出当前进程，可传入参数，0表示成功退出，默认为0；1表示有错误
+> 支持的是 .js、.json、.node、.mjs
 
-> argv：String 类型，获取命令中的所有参数
+#### 文件名
 
-> platform：获取当前操作系统的平台，输出结果为win32，表示支持32位以上的操作系统
+> 如果仅提供目录，不提供文件名，则会自动寻找目录中的 index.js
 
-> kill（pid）：根据进行 ID 杀死进程
+> package.json 中的 main 字段
 
-> env：获取系统中环境的变量对象
+### module 对象
 
-9）global：全局对象，里面还有个 global 属性，类似于 window 中还有个 window 属性
+> 记录当前模块的信息
+
+> this === exports
+
+> 最后的返回结果为 module.exports
+
+> 如果新增对象的属性和值，会一起输出；如果是新创建了一个对象后赋值，那么大不相同
+
+### require 函数
+
+> 当执行 require 函数时，会将该模块放到一个函数环境中执行
