@@ -12,4 +12,10 @@
 
 > 模块要么是 CommonJs，要么是 es6
 
-> 当使用 es6 模块化运行时，必须要添加 --experimental-modules 标记；或是在 package.json 中添加 type: 'module'，现在可以不用（当前版本：v14.15.4）
+> 默认情况下是 CommonJs
+
+> 如果要使用 es6 模块化，后缀名改为.mjs，最近的 package.json 文件中添加 type: 'module'
+
+> 当使用 es6 模块化运行时，必须要添加 --experimental-modules 标记
+
+> 现在可以不用（当前版本：v14.15.4）
