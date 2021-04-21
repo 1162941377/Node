@@ -4,60 +4,66 @@
 
 2）它提供了比浏览器更多的操作权限
 
-## 文件 I / O
+## 文件流
 
-> I / O：input / output，输入和输出
+> 内存数据和磁盘文件数据之间的流动
 
-1）对外部设备的输入和输出
+> 流是有方向的
 
-2）外部设备：网卡、磁盘、显卡、打印机、其它。。。。。。
+### 可读流 Readable
 
-> I / O 的读写速度往往低于内存和 cpu 之间的交互速度
+> 数据从源头流向内存
 
-### fs 模块
+### 可写流 Writable
 
-> 一般配合 path 模块使用
+> 数据从内存流向源头
 
-> fs 模块中的方法采用的是回调函数模式，异步执行
+### 双工流 Duplex
 
-> 适应 es6 提出的 promise，node 新增了 promises 属性去调用之前的方法，返回的结果为 promise 对象
+> 数据既可从源头流向内存，又可以从内存流向源头
 
-> fs 模块中每个方法都有一个对应的 sync 方法，同步处理文件，但是会导致 js 的运行阻塞，极其影响性能，通常用于程序的初始化或在有限次数内调用
+### 需要流的原因
 
-1）readFile：读取一个文件
+- 其它介质和内存的数据规模不一致
 
-2）writeFile：向一个文件中写入内容
+_内存的空间远远小于硬盘的空间_
 
-> 可以配合使用 Buffer.from 方法，第一个参数为传入的内容，第二个参数为编码类型
+- 其它介质和内存的数据处理能力不一致
 
-> 每次写入的时候，默认是覆盖，如果要变动的话，可以传递的第三个参数，是一个对象，flag: "a"
+_内存的处理速度远远高于硬盘的处理速度_
 
-3）stat：获取文件或目录的信息
+### 文件流的创建
 
-> 在操作系统中，文件和目录本质上是一个东西，文件有大小；目录没有，存放的是指针，指向里面存放的文件
+_都是继承自 Readable 或 Writable 类_
 
-属性详解：
+> autoClose: true 默认，表示自动关闭
 
-- size：大小，如果是目录的话，是 0
+- fs.createReadStream(path, [options])
 
-- atime：上次访问的时间
+> 创建一个文件可读流，用于读取文件的内容
 
-- mtime：上次文件内容修改的时间
+> options 参数：encoding 编码方式、start 起始字节、end 结束字节、highWaterMark 每次读取的数量
 
-- ctime：上次文件状态被修改的时间
+> hightWaterMark：如果 encoding 有值，该数量表示的是一个字符数；如果 encoding 值为 null，或不没有设置，该数量表示的是一个字节数
 
-- birthtime：文件创建的时间
+> 返回的子类 ReadStream：提供了 on 函数，有 open、error、data、close、end 事件，只有当调用 data 方法时，才会去读取文件内容；提供了 pause 方法，暂停读取，会触发 pause 事件；resume 方法，恢复读取，会触发 resume 事件；这两个方式都是为了解决内存和磁盘之间的文件流传输产生的问题
 
-- isDirectory：判断是否是目录
+- fs.createWriteStream(path, [options])
 
-- isFile：判断是否是文件
+> 创建一个文件流
 
-4）readdir：获取目录中的文件和子目录
+> options 参数：flags 操作文件的方式（w 覆盖、a 追加、其它）、encoding 编码方式、start 起始字节、highWaterMark 每次最多写入的字节数
 
-5）mkdir：创建目录
+> 返回的子类 WriteStream：提供了 on 函数，有 open、error、close 事件；提供了 write 方法，参数为文件内容，可以是字符串或 Buffer，返回一个 Boolean（true 或 false） 值，当写入队列清空时，会触发 drain 事件；提供了 end 方法，结束写入，将自动关闭文件
 
-6）exists：判断文件是否存在（已弃用）
+    > true表示的是通道没有被填满，接下来的数据可以直接写入，无需排队；
 
-> 如果文件不存在，会抛出 ENOENT（Error No Entry） 的 code 状态码
+    > false表示的是通道已经被填满，接下来的数据不能直接写入，将进入写入队列；背压问题的来源
 
-_扩展：在 es6 的 class 类中，静态方法是只有该类可以使用，无法继承，如果要子类使用的话，不用加上 static 关键字，在定义方法的时候，也不用加上 function 关键字_
+- fs.pipe(ws)：node 提供的函数，帮我们处理 rs 和 ws 之间的处理逻辑
+
+> 将可读流连接到可写流
+
+> 返回的是参数值
+
+> 该方法可解决背压问题
