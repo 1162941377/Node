@@ -4,30 +4,22 @@
 
 2）它提供了比浏览器更多的操作权限
 
-## 回顾 HTTP 请求
+## 生命周期
 
-> 分为普通模式和长连接模式
+> 详情见 PPT
 
-- 长连接模式：请求头中设置了 _Connection: keep-alive_
+> 对于前端而言，重要的是：三个宏队列 timers、poll、checks，两个微队列 nextTick、promise
 
-_HTTP 请求类似于你问我答，客户端请求数据，服务器才返回；如果是普通模式，每次都会重新发送建立连接_
+1）timers：存放计时器的回调函数
 
-## HTTP 模块
+- setTimeout 最少延迟 1 毫秒后执行
 
-> http 模块建立在 net 模块上，无需手动管理 socket，无需手动组装消息格式
+2）poll：轮询队列，除了 timers、checks 之外的绝大部分回调函数都会进入该队列中，比如：文件的读取、监听用户请求等
 
-> http.request(url, [options], [callback]])
+- 运作方式：如果 poll 中有回调，依次执行回调函数，直到清空队列；如果没有，等待其它队列中出现回调函数，立即结束该阶段，进入下个阶段，如果其它队列中也没有回调，则会一直进行等待
 
-> http.createServer([options], [requestListener])
+3）checkes：检查阶段，使用 setImmediate 的回调函数会直接放入该队列中
 
-### 客户端
+_事件循环中，每次打算执行一个回调函数前，必须要先清空 nextTick 和 promise 中的队列；nextTick 的优先级最高_
 
-> 请求：ClientRequest 对象
-
-> 响应：IncomingMessage 对象
-
-### 服务器
-
-> 请求：IncomingMessage 对象
-
-> 响应：ServerResponse 对象
+_其实，没有 timers 队列，当 node 读到计时器的时候，会依次遍历所有的计时器，并进行排序，依次执行；而 checks 队列中的回调函数会直接执行，相当于是一个数组，每次调用 setImmediate 函数时，会直接添加进数组中；因此，在执行效率上，比 setTimeout 快太多_
