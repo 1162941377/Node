@@ -12,32 +12,22 @@
 
 _HTTP 请求类似于你问我答，客户端请求数据，服务器才返回；如果是普通模式，每次都会重新发送建立连接_
 
-## net 模块
+## HTTP 模块
 
-> netmok 是一个通信模块，用于实现：进程间的通信 IPC 和网络间的通信 TCP/IP
+> http 模块建立在 net 模块上，无需手动管理 socket，无需手动组装消息格式
 
-### 创建客户端
+> http.request(url, [options], [callback]])
 
-> net.createConnection(options, [connectListener])
+> http.createServer([options], [requestListener])
 
-> 返回的是一个 socket 对象，用于与远程主机建立 TCP/IP 连接
+### 客户端
 
-_socket 是一个特殊的文件，在 node 中表现为一个双工流对象，通过向流写入内容发送数据，通过监听流的内容获取数据_
+> 请求：ClientRequest 对象
 
-### 创建服务器
+> 响应：IncomingMessage 对象
 
-> net.createServe()
+### 服务器
 
-> 返回的是一个 serve 对象，用于与客户端建立 TCP/IP 连接
+> 请求：IncomingMessage 对象
 
-- listen 方法，参数的值为要监听的端口号
-
-- on 方法，参数为 listening，第二个为回调函数，在开始监听端口号后触发该事件；参数为 connection，第二个参数还是一个回调函数，表示的是当某个连接到来时，触发该事件，会返回一个 socket 对象，用于存储与客户端之间的交互信息
-
-_会发送两次连接，第一次是测试连接，第二次才是真正的传输数据；关闭的时候，同样也会执行两次_
-
-### HTTP 协议规范
-
-> 传输数据的时候，遵循原则是：请求方式 / 请求路径 协议名，请求头，请求体
-
-_http 协议中一般不传输请求体，但是换两行一定要有；http 请求返回的本质上就是一个字符串_
+> 响应：ServerResponse 对象
